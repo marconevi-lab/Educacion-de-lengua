@@ -1,0 +1,855 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#51386a">
+  <title>Modo docente · Lengua</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fontsource-opendyslexic/5.3.0/index.css">
+  <link rel="stylesheet" href="config.css">
+  <style>
+    :root {
+      --color-controles-bg: #fffffff2;
+      --color-grupo-bg: #fff;
+      --color-grupo-sombra: #39264e0b;
+      --color-grupo-cabecera-bg: #f1eafa;
+      --color-grupo-cabecera-texto: #46315c;
+      --color-contador: #7a6f8a;
+      --color-fila-borde: #ece7f1;
+      --color-respuesta-borde: #d7cfdf;
+      --color-respuesta-bg: #fff;
+      --color-correcta: #168348;
+      --color-incorrecta: #c92b3d;
+      --color-solucion: #21734a;
+      --color-dialogo-borde: #ddd2e8;
+      --color-aviso-guardado: #5b6970;
+    }
+
+    :root[data-theme="dark"] {
+      --color-controles-bg: #2a2234f2;
+      --color-grupo-bg: #2a2234;
+      --color-grupo-sombra: #00000030;
+      --color-grupo-cabecera-bg: #342a40;
+      --color-grupo-cabecera-texto: #d9cce7;
+      --color-contador: #a79bb3;
+      --color-fila-borde: #3a2f47;
+      --color-respuesta-borde: #4d3c5c;
+      --color-respuesta-bg: #221b2c;
+      --color-correcta: #8ee6ad;
+      --color-incorrecta: #f28b9d;
+      --color-solucion: #8ee6ad;
+      --color-dialogo-borde: #40334e;
+      --color-aviso-guardado: #a79bb3;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]):not([data-theme="dark"]) {
+        --color-controles-bg: #2a2234f2;
+        --color-grupo-bg: #2a2234;
+        --color-grupo-sombra: #00000030;
+        --color-grupo-cabecera-bg: #342a40;
+        --color-grupo-cabecera-texto: #d9cce7;
+        --color-contador: #a79bb3;
+        --color-fila-borde: #3a2f47;
+        --color-respuesta-borde: #4d3c5c;
+        --color-respuesta-bg: #221b2c;
+        --color-correcta: #8ee6ad;
+        --color-incorrecta: #f28b9d;
+        --color-solucion: #8ee6ad;
+        --color-dialogo-borde: #40334e;
+        --color-aviso-guardado: #a79bb3;
+      }
+    }
+
+    :root[data-contraste="alto"] {
+      --color-controles-bg: #fff !important;
+      --color-grupo-bg: #fff !important;
+      --color-grupo-cabecera-bg: #fff !important;
+      --color-grupo-cabecera-texto: #000 !important;
+      --color-contador: #000 !important;
+      --color-fila-borde: #000 !important;
+      --color-respuesta-borde: #000 !important;
+      --color-respuesta-bg: #fff !important;
+      --color-correcta: #006400 !important;
+      --color-incorrecta: #8b0000 !important;
+      --color-solucion: #003d00 !important;
+      --color-dialogo-borde: #000 !important;
+      --color-aviso-guardado: #000 !important;
+    }
+
+    [data-contraste="alto"] .controles,
+    [data-contraste="alto"] .grupo,
+    [data-contraste="alto"] .respuesta,
+    [data-contraste="alto"] select,
+    [data-contraste="alto"] dialog,
+    [data-contraste="alto"] .logo-github {
+      border-width: 2px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--color-texto);
+      background:
+        radial-gradient(circle at 8% 6%, var(--color-fondo-1) 0, transparent 24rem),
+        linear-gradient(180deg, var(--color-fondo-2), var(--color-fondo-3));
+      transition: background .2s ease, color .2s ease;
+    }
+
+    .contenedor { width: min(1080px, calc(100% - 32px)); margin: 0 auto; }
+
+    header { position: relative; padding: 40px 0 26px; }
+
+    .logo-github {
+      position: absolute;
+      top: 40px;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid var(--color-etiqueta-borde);
+      border-radius: 50%;
+      background: var(--color-tarjeta-bg);
+      font-size: 1.4rem;
+      text-decoration: none;
+      box-shadow: 0 8px 24px var(--color-tarjeta-sombra);
+      transition: transform .14s ease, background .14s ease;
+    }
+
+    .logo-github:hover { transform: translateY(-2px); background: var(--color-icono-hover); }
+    .logo-github:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+    .logo-elegir { right: 116px; }
+    .logo-issue { right: 58px; }
+
+    .etiqueta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid var(--color-etiqueta-borde);
+      border-radius: 999px;
+      background: var(--color-tarjeta-bg);
+      color: var(--color-acento);
+      font-size: .85rem;
+      font-weight: 800;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    h1 { margin: 16px 0 8px; color: var(--color-titulo); font-size: clamp(2rem, 6vw, 3.4rem); line-height: 1.05; }
+    header p { max-width: 680px; margin: 0; color: var(--color-texto-suave); font-size: 1.08rem; line-height: 1.6; }
+
+    .controles {
+      position: sticky;
+      z-index: 2;
+      top: 0;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 12px;
+      margin: 4px 0 24px;
+      padding: 14px;
+      border: 1px solid var(--color-tarjeta-borde);
+      border-radius: 18px;
+      background: var(--color-controles-bg);
+      box-shadow: 0 8px 24px var(--color-tarjeta-sombra);
+      backdrop-filter: blur(10px);
+    }
+
+    .selector { display: grid; gap: 5px; min-width: 190px; }
+    label { color: var(--color-label); font-size: .9rem; font-weight: 750; }
+
+    select, button, input { font: inherit; }
+
+    select {
+      min-height: 44px;
+      padding: 9px 38px 9px 12px;
+      border: 1px solid var(--color-input-borde);
+      border-radius: 11px;
+      background: var(--color-input-bg);
+      color: var(--color-input-texto);
+    }
+
+    button {
+      min-height: 44px;
+      padding: 10px 16px;
+      border: 0;
+      border-radius: 11px;
+      background: var(--color-acento);
+      color: white;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .14s ease, background .14s ease;
+    }
+
+    button:hover { transform: translateY(-1px); background: var(--color-acento-hover); }
+    button:focus-visible, select:focus-visible, input:focus-visible { outline: 3px solid var(--color-focus); outline-offset: 2px; }
+
+    .resumen {
+      margin-left: auto;
+      align-self: center;
+      color: var(--color-texto-suave);
+      font-size: .95rem;
+      font-weight: 700;
+    }
+
+    .continuar { background: #23745a; }
+    .continuar:hover { background: #195b45; }
+    .aviso-guardado { width: 100%; margin: 0; color: var(--color-aviso-guardado); font-size: .84rem; font-weight: 650; }
+
+    #ejercicios { display: grid; gap: 20px; padding-bottom: 48px; }
+
+    .grupo {
+      overflow: hidden;
+      border: 1px solid var(--color-fila-borde);
+      border-radius: 20px;
+      background: var(--color-grupo-bg);
+      box-shadow: 0 8px 24px var(--color-grupo-sombra);
+    }
+
+    .grupo h2 {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0;
+      padding: 17px 20px;
+      background: var(--color-grupo-cabecera-bg);
+      color: var(--color-grupo-cabecera-texto);
+      font-size: 1.25rem;
+    }
+
+    .grupo h2 span { font-size: 1.35rem; }
+    .contador-grupo { margin-left: auto; color: var(--color-contador); font-size: .82rem; font-weight: 700; text-transform: none; letter-spacing: normal; }
+    .grupo ol { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 26px; margin: 0; padding: 8px 24px 18px 52px; }
+    .grupo li { display: flex; min-width: 0; align-items: center; gap: 8px; padding: 12px 4px; border-bottom: 1px dashed var(--color-fila-borde); font-size: 1.08rem; }
+    .enunciado { flex: 1; min-width: 0; }
+
+    .respuesta {
+      width: 150px;
+      min-height: 40px;
+      padding: 6px 8px;
+      border: 2px solid var(--color-respuesta-borde);
+      border-radius: 9px;
+      background: var(--color-respuesta-bg);
+      color: var(--color-texto);
+      font: inherit;
+      text-align: center;
+    }
+
+    .respuesta:focus { border-color: var(--color-acento); outline: 3px solid var(--color-focus); }
+    .resultado { min-width: 1.2em; font-size: 1.35rem; font-weight: 900; line-height: 1; }
+    .resultado.correcta { color: var(--color-correcta); }
+    .resultado.incorrecta { color: var(--color-incorrecta); }
+
+    .solucion {
+      display: inline-block;
+      margin-left: 8px;
+      color: var(--color-solucion);
+      font-weight: 850;
+    }
+
+    .solucion[hidden] { display: none; }
+
+    .boton-solucion {
+      min-height: auto;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: 0;
+      background: #ffd60a;
+      color: #3a2f00;
+      font-size: .82rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: transform .14s ease, background .14s ease;
+    }
+    .boton-solucion:hover { background: #ffe066; transform: translateY(-1px); }
+
+    dialog {
+      width: min(420px, calc(100% - 28px));
+      padding: 0;
+      border: 1px solid var(--color-dialogo-borde);
+      border-radius: 20px;
+      background: var(--color-tarjeta-bg);
+      color: var(--color-texto);
+      box-shadow: 0 24px 80px #20172b55;
+    }
+
+    dialog::backdrop { background: #25183188; backdrop-filter: blur(3px); }
+    .dialogo-cuerpo { padding: 24px; }
+    .dialogo-cuerpo h2 { margin: 0 0 7px; color: var(--color-titulo); }
+    .dialogo-cuerpo p { margin: 0 0 18px; color: var(--color-texto-suave); line-height: 1.5; }
+    .dialogo-cuerpo form { display: grid; gap: 12px; }
+    .dialogo-cuerpo input { min-height: 45px; padding: 10px 12px; border: 1px solid var(--color-input-borde); border-radius: 10px; background: var(--color-input-bg); color: var(--color-input-texto); }
+    .acciones-dialogo { display: flex; justify-content: end; gap: 8px; }
+    .secundario { background: var(--color-boton-secundario-bg); color: var(--color-boton-secundario-texto); }
+    .secundario:hover { background: var(--color-boton-secundario-hover); }
+    #error-clave { min-height: 1.4em; margin: 0; color: var(--color-error); font-weight: 700; }
+
+    .enlace-pista {
+      justify-self: start;
+      min-height: auto;
+      padding: 2px 0;
+      border: 0;
+      background: none;
+      color: var(--color-acento);
+      font-size: .85rem;
+      font-weight: 700;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .enlace-pista:hover { color: var(--color-acento-hover); }
+    .pista-clave { margin: -6px 0 0; color: var(--color-label); font-size: .85rem; line-height: 1.4; }
+    .pista-clave[hidden] { display: none; }
+
+    footer { padding: 0 0 28px; color: var(--color-texto-suave); font-size: .88rem; text-align: center; }
+
+    @media (max-width: 620px) {
+      .controles { position: static; align-items: stretch; }
+      .selector { flex: 1 1 100%; }
+      .resumen { flex: 1 1 100%; margin: 0; }
+      .grupo ol { grid-template-columns: 1fr; }
+      header { padding-top: 28px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .contenedor { width: 100%; }
+      header { padding: 0 0 14px; }
+      .controles, dialog, footer, .logo-github, .logo-elegir, .logo-issue, .logo-config, .panel-config { display: none !important; }
+      .grupo { break-inside: avoid; box-shadow: none; }
+      .grupo ol { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .solucion[hidden] { display: none !important; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <button type="button" class="logo-config" id="boton-config" title="Configuración" aria-label="Configuración">⚙️</button>
+
+  <div class="panel-config" id="panel-config" hidden>
+    <h2>⚙️ Configuración</h2>
+    <div class="campo">
+      <label for="select-tema">Tema</label>
+      <select id="select-tema">
+        <option value="auto">Automático</option>
+        <option value="light">Claro</option>
+        <option value="dark">Oscuro</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label for="select-tamano">Tamaño de texto</label>
+      <select id="select-tamano">
+        <option value="normal">Normal</option>
+        <option value="grande">Grande</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label for="select-contraste">Contraste</label>
+      <select id="select-contraste">
+        <option value="normal">Normal</option>
+        <option value="alto">Alto contraste</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label for="select-fuente">Fuente</label>
+      <select id="select-fuente">
+        <option value="normal">Normal</option>
+        <option value="dislexia">Apta para dislexia</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label for="select-movimiento">Animaciones</label>
+      <select id="select-movimiento">
+        <option value="normal">Activadas</option>
+        <option value="reducido">Reducidas</option>
+      </select>
+    </div>
+    <button type="button" id="boton-restablecer" class="secundario" style="width: 100%;">🔄 Restablecer progreso</button>
+    <button type="button" id="boton-version-especial" class="secundario" style="width: 100%; margin-top: 10px;">🌟 Acceder a la versión especial</button>
+  </div>
+
+  <header class="contenedor">
+    <a href="https://marconevi-lab.github.io/Educacion-de-matematicas/inicio.html" class="logo-github logo-elegir" title="Elegir otra asignatura o curso" aria-label="Elegir otra asignatura o curso">➕</a>
+    <a href="https://github.com/marconevi-lab/Educacion-de-lengua" target="_blank" rel="noopener" class="logo-github" title="Ver el repositorio en GitHub" aria-label="Ver el repositorio en GitHub">📐</a>
+    <a href="https://github.com/marconevi-lab/Educacion-de-lengua/issues/new" target="_blank" rel="noopener" class="logo-github logo-issue" title="Reportar un problema" aria-label="Reportar un problema">🐛</a>
+    <span class="etiqueta">🧑‍🏫 Modo docente · 4.º de Primaria</span>
+    <h1>Reto de lengua</h1>
+    <p>50 ejercicios para practicar ortografía (b/v, g/j), antónimos, plurales especiales y clases de palabras. Elige un nivel y ponte a escribir; las soluciones están reservadas para el profesorado.</p>
+  </header>
+
+  <main class="contenedor">
+    <section class="controles" aria-label="Controles de los ejercicios">
+      <div class="selector">
+        <label for="dificultad">Elige la dificultad</label>
+        <select id="dificultad">
+          <option value="facil">Fácil</option>
+          <option value="medio" selected>Medio</option>
+          <option value="dificil">Difícil</option>
+        </select>
+      </div>
+      <button id="nuevos" type="button">🔄 Crear otros ejercicios</button>
+      <button id="continuar-sin-clave" class="continuar" type="button">▶️ Continuar mis ejercicios</button>
+      <button id="ver-soluciones" type="button">🔒 Mostrar soluciones</button>
+      <span id="resumen" class="resumen" aria-live="polite">50 ejercicios · Nivel medio</span>
+      <p class="aviso-guardado">Continuar mis ejercicios no pide contraseña y guarda automáticamente tus respuestas en este navegador.</p>
+    </section>
+
+    <div id="ejercicios" aria-live="polite"></div>
+  </main>
+
+  <footer class="contenedor">Consejo: lee la palabra en voz alta antes de escribirla.</footer>
+
+  <dialog id="dialogo-clave" aria-labelledby="titulo-clave">
+    <div class="dialogo-cuerpo">
+      <h2 id="titulo-clave">Acceso docente</h2>
+      <p>Introduce la contraseña para mostrar las soluciones.</p>
+      <form id="formulario-clave">
+        <label for="clave-docente">Contraseña</label>
+        <input id="clave-docente" type="password" autocomplete="current-password" required>
+        <p id="error-clave" role="status" aria-live="polite"></p>
+        <button type="button" id="olvide-clave" class="enlace-pista">¿Olvidaste la clave?</button>
+        <p id="pista-clave" class="pista-clave" hidden>Pista: lo que se firma al alquilar un piso.</p>
+        <div class="acciones-dialogo">
+          <button class="secundario" id="cancelar-clave" type="button">Cancelar</button>
+          <button type="submit">Desbloquear</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <script>
+    // Cambia esta clave si quieres utilizar otra en tu actividad.
+    const CLAVE_DOCENTE = "Contrato";
+
+    const grupos = [
+      { id: "ortografiaBV", titulo: "Ortografía: b/v", icono: "🅱️", cantidad: 10 },
+      { id: "ortografiaGJ", titulo: "Ortografía: g/j", icono: "🔡", cantidad: 10 },
+      { id: "antonimos", titulo: "Antónimos", icono: "🔄", cantidad: 10 },
+      { id: "plurales", titulo: "Plurales especiales", icono: "📚", cantidad: 10 },
+      { id: "clasesPalabras", titulo: "Clases de palabras", icono: "🏷️", cantidad: 10 }
+    ];
+
+    // Cada fila: [palabra con un hueco "_", palabra completa correcta]
+    const ortografiaBVPorNivel = {
+      facil: [
+        ["ca_allo", "caballo"], ["_aca", "vaca"], ["_arco", "barco"], ["nue_e", "nueve"], ["_entana", "ventana"],
+        ["li_ro", "libro"], ["_oca", "boca"], ["_iento", "viento"], ["ca_eza", "cabeza"], ["_olar", "volar"],
+        ["ár_ol", "árbol"], ["_urro", "burro"]
+      ],
+      medio: [
+        ["_ailar", "bailar"], ["in_ierno", "invierno"], ["pue_lo", "pueblo"], ["lle_ar", "llevar"], ["jara_e", "jarabe"],
+        ["ca_le", "cable"], ["_ola", "bola"], ["_iejo", "viejo"], ["_arato", "barato"], ["escri_ir", "escribir"],
+        ["a_ión", "avión"], ["ser_icio", "servicio"]
+      ],
+      dificil: [
+        ["exu_erante", "exuberante"], ["ad_ertir", "advertir"], ["su_terráneo", "subterráneo"], ["o_servar", "observar"],
+        ["mo_imiento", "movimiento"], ["go_ierno", "gobierno"], ["pro_ar", "probar"], ["de_ate", "debate"],
+        ["atra_esar", "atravesar"], ["in_entar", "inventar"]
+      ]
+    };
+
+    const ortografiaGJPorNivel = {
+      facil: [
+        ["_irafa", "jirafa"], ["_eneral", "general"], ["_efe", "jefe"], ["_ente", "gente"], ["_ugo", "jugo"],
+        ["_ardín", "jardín"], ["pá_ina", "página"], ["mensa_e", "mensaje"], ["cole_io", "colegio"], ["a_enda", "agenda"]
+      ],
+      medio: [
+        ["corre_ir", "corregir"], ["extran_ero", "extranjero"], ["gara_e", "garaje"], ["e_emplo", "ejemplo"],
+        ["via_e", "viaje"], ["equipa_e", "equipaje"], ["len_uaje", "lenguaje"], ["ma_estad", "majestad"],
+        ["ur_ente", "urgente"], ["tra_e", "traje"]
+      ],
+      dificil: [
+        ["inteli_encia", "inteligencia"], ["exi_ente", "exigente"], ["ima_inación", "imaginación"],
+        ["emer_encia", "emergencia"], ["homena_e", "homenaje"], ["pro_enitor", "progenitor"],
+        ["refu_io", "refugio"], ["cora_e", "coraje"], ["le_ítimo", "legítimo"], ["ori_en", "origen"]
+      ]
+    };
+
+    const antonimosPorNivel = {
+      facil: [
+        ["grande", "pequeño"], ["alto", "bajo"], ["rápido", "lento"], ["feliz", "triste"], ["caliente", "frío"],
+        ["nuevo", "viejo"], ["gordo", "delgado"], ["limpio", "sucio"], ["fácil", "difícil"], ["bueno", "malo"]
+      ],
+      medio: [
+        ["generoso", "tacaño"], ["valiente", "cobarde"], ["ordenado", "desordenado"], ["ruidoso", "silencioso"],
+        ["amable", "antipático"], ["abundante", "escaso"], ["claro", "oscuro"], ["ancho", "estrecho"],
+        ["temprano", "tarde"], ["ligero", "pesado"]
+      ],
+      dificil: [
+        ["optimista", "pesimista"], ["ascender", "descender"], ["aumentar", "disminuir"], ["permitir", "prohibir"],
+        ["sencillo", "complicado"], ["victoria", "derrota"], ["abundancia", "escasez"], ["atractivo", "repulsivo"],
+        ["construir", "destruir"], ["iniciar", "finalizar"]
+      ]
+    };
+
+    const pluralesPorNivel = {
+      facil: [
+        ["papel", "papeles"], ["luz", "luces"], ["pez", "peces"], ["lápiz", "lápices"], ["reloj", "relojes"],
+        ["rey", "reyes"], ["ley", "leyes"], ["flor", "flores"], ["camión", "camiones"], ["joven", "jóvenes"]
+      ],
+      medio: [
+        ["autobús", "autobuses"], ["país", "países"], ["jardín", "jardines"], ["canción", "canciones"],
+        ["ratón", "ratones"], ["melón", "melones"], ["avión", "aviones"], ["corazón", "corazones"],
+        ["francés", "franceses"], ["inglés", "ingleses"]
+      ],
+      dificil: [
+        ["club", "clubes"], ["álbum", "álbumes"], ["menú", "menús"], ["tabú", "tabúes"],
+        ["espécimen", "especímenes"], ["carácter", "caracteres"], ["hábitat", "hábitats"],
+        ["déficit", "déficits"], ["césped", "céspedes"], ["régimen", "regímenes"]
+      ]
+    };
+
+    const clasesPalabrasPorNivel = {
+      facil: [
+        ["perro", "sustantivo"], ["corre", "verbo"], ["bonito", "adjetivo"], ["casa", "sustantivo"], ["salta", "verbo"],
+        ["alto", "adjetivo"], ["mesa", "sustantivo"], ["come", "verbo"], ["rápido", "adjetivo"], ["niño", "sustantivo"]
+      ],
+      medio: [
+        ["jardín", "sustantivo"], ["escribe", "verbo"], ["inteligente", "adjetivo"], ["duerme", "verbo"],
+        ["curioso", "adjetivo"], ["profesor", "sustantivo"], ["estudia", "verbo"], ["amable", "adjetivo"],
+        ["ciudad", "sustantivo"], ["construye", "verbo"]
+      ],
+      dificil: [
+        ["generosidad", "sustantivo"], ["imagina", "verbo"], ["extraordinario", "adjetivo"], ["transforma", "verbo"],
+        ["silencioso", "adjetivo"], ["biblioteca", "sustantivo"], ["reflexiona", "verbo"], ["impresionante", "adjetivo"],
+        ["conocimiento", "sustantivo"], ["organiza", "verbo"]
+      ]
+    };
+
+    const dificultad = document.querySelector("#dificultad");
+    const listaEjercicios = document.querySelector("#ejercicios");
+    const resumen = document.querySelector("#resumen");
+    const botonSoluciones = document.querySelector("#ver-soluciones");
+    const botonContinuar = document.querySelector("#continuar-sin-clave");
+    const dialogoClave = document.querySelector("#dialogo-clave");
+    const formularioClave = document.querySelector("#formulario-clave");
+    const campoClave = document.querySelector("#clave-docente");
+    const errorClave = document.querySelector("#error-clave");
+    const botonOlvideClave = document.querySelector("#olvide-clave");
+    const pistaClave = document.querySelector("#pista-clave");
+    let mostrarSoluciones = false;
+    let accesoDocente = false;
+    const CLAVE_PROGRESO = "lengua-progreso-v2";
+    let ejerciciosActuales = null;
+    let respuestasGuardadas = {};
+
+    const CLAVE_CONFIG_COMPARTIDA = "edu-config-inicio";
+
+    function leerConfigCompartida() {
+      try {
+        const guardado = JSON.parse(localStorage.getItem(CLAVE_CONFIG_COMPARTIDA));
+        if (guardado && typeof guardado === "object") return guardado;
+      } catch {}
+      return { tema: "auto", tamano: "normal", contraste: "normal", fuente: "normal", movimiento: "normal" };
+    }
+
+    function guardarConfigCompartida(config) {
+      localStorage.setItem(CLAVE_CONFIG_COMPARTIDA, JSON.stringify(config));
+    }
+
+    const modoEspecial = leerConfigCompartida().correccion === "especial";
+
+    function aleatorio(minimo, maximo) {
+      return Math.floor(Math.random() * (maximo - minimo + 1)) + minimo;
+    }
+
+    function elegirAlAzar(lista) {
+      return lista[aleatorio(0, lista.length - 1)];
+    }
+
+    function crearEjercicios(nivel) {
+      const ejercicios = { ortografiaBV: [], ortografiaGJ: [], antonimos: [], plurales: [], clasesPalabras: [] };
+
+      for (let i = 0; i < 10; i++) {
+        const [huecoBV, palabraBV] = elegirAlAzar(ortografiaBVPorNivel[nivel]);
+        ejercicios.ortografiaBV.push({ texto: `Completa con b o v: "${huecoBV}"`, respuesta: palabraBV });
+
+        const [huecoGJ, palabraGJ] = elegirAlAzar(ortografiaGJPorNivel[nivel]);
+        ejercicios.ortografiaGJ.push({ texto: `Completa con g o j: "${huecoGJ}"`, respuesta: palabraGJ });
+
+        const [palabra, antonimo] = elegirAlAzar(antonimosPorNivel[nivel]);
+        ejercicios.antonimos.push({ texto: `Escribe el antónimo de "${palabra}"`, respuesta: antonimo });
+
+        const [singular, plural] = elegirAlAzar(pluralesPorNivel[nivel]);
+        ejercicios.plurales.push({ texto: `Escribe el plural de "${singular}"`, respuesta: plural });
+
+        const [palabraClase, clase] = elegirAlAzar(clasesPalabrasPorNivel[nivel]);
+        ejercicios.clasesPalabras.push({ texto: `¿Es sustantivo, adjetivo o verbo?: "${palabraClase}"`, respuesta: clase });
+      }
+
+      return ejercicios;
+    }
+
+    function guardarProgreso() {
+      try {
+        localStorage.setItem(CLAVE_PROGRESO, JSON.stringify({
+          nivel: dificultad.value,
+          ejercicios: ejerciciosActuales,
+          respuestas: respuestasGuardadas
+        }));
+      } catch {
+        // Si el navegador bloquea el almacenamiento, los ejercicios siguen funcionando.
+      }
+    }
+
+    function recuperarProgreso() {
+      try {
+        const progreso = JSON.parse(localStorage.getItem(CLAVE_PROGRESO));
+        if (progreso && progreso.ejercicios && progreso.respuestas) return progreso;
+      } catch {
+        // No hay un progreso válido guardado todavía.
+      }
+      return null;
+    }
+
+    function pintarEjercicios() {
+      const nivel = dificultad.value;
+      const ejercicios = ejerciciosActuales || crearEjercicios(nivel);
+      ejerciciosActuales = ejercicios;
+      mostrarSoluciones = accesoDocente;
+      listaEjercicios.replaceChildren();
+      let numero = 1;
+
+      for (const grupo of grupos) {
+        const seccion = document.createElement("section");
+        seccion.className = "grupo";
+
+        const titulo = document.createElement("h2");
+        titulo.innerHTML = `<span aria-hidden="true">${grupo.icono}</span>${grupo.titulo} <small>(${grupo.cantidad})</small>`;
+        const contadorGrupo = document.createElement("span");
+        contadorGrupo.className = "contador-grupo";
+        titulo.append(contadorGrupo);
+        seccion.append(titulo);
+
+        function actualizarContadorGrupo() {
+          const correctas = lista.querySelectorAll(".resultado.correcta").length;
+          contadorGrupo.textContent = `${correctas}/${grupo.cantidad} correctas`;
+        }
+
+        const lista = document.createElement("ol");
+        (ejercicios[grupo.id] || []).forEach((ejercicio, indice) => {
+          const idEjercicio = `${grupo.id}-${indice}`;
+          const elemento = document.createElement("li");
+          const enunciado = document.createElement("span");
+          enunciado.className = "enunciado";
+          enunciado.textContent = ejercicio.texto;
+
+          const entrada = document.createElement("input");
+          entrada.className = "respuesta";
+          entrada.type = "text";
+          entrada.autocomplete = "off";
+          entrada.autocapitalize = "off";
+          entrada.spellcheck = false;
+          entrada.maxLength = 30;
+          entrada.setAttribute("aria-label", `Respuesta del ejercicio ${numero}`);
+          entrada.value = respuestasGuardadas[idEjercicio] || "";
+
+          const resultado = document.createElement("span");
+          resultado.className = "resultado";
+          resultado.setAttribute("role", "status");
+          resultado.setAttribute("aria-live", "polite");
+
+          function normalizar(texto) {
+            return texto.trim().toLowerCase().replace(/\s+/g, " ");
+          }
+
+          let botonMostrarSolucion = null;
+          let solucionMostrada = false;
+
+          function ocultarResultado() {
+            resultado.textContent = "";
+            resultado.className = "resultado";
+            resultado.removeAttribute("aria-label");
+            solucionMostrada = false;
+            if (botonMostrarSolucion) botonMostrarSolucion.textContent = "Mostrar solución";
+            actualizarContadorGrupo();
+          }
+
+          function comprobarRespuesta() {
+            if (entrada.value.trim() === "") {
+              resultado.textContent = "";
+              resultado.className = "resultado";
+              resultado.removeAttribute("aria-label");
+              actualizarContadorGrupo();
+              return;
+            }
+            const esCorrecta = normalizar(entrada.value) === normalizar(ejercicio.respuesta);
+            resultado.textContent = esCorrecta ? "✓" : "✗";
+            resultado.className = `resultado ${esCorrecta ? "correcta" : "incorrecta"}`;
+            resultado.setAttribute("aria-label", esCorrecta ? "Correcto" : "Incorrecto");
+            actualizarContadorGrupo();
+          }
+
+          entrada.addEventListener("input", () => {
+            respuestasGuardadas[idEjercicio] = entrada.value;
+            guardarProgreso();
+            if (modoEspecial) {
+              ocultarResultado();
+            } else {
+              comprobarRespuesta();
+            }
+          });
+
+          entrada.addEventListener("change", () => {
+            if (!modoEspecial) comprobarRespuesta();
+          });
+
+          entrada.addEventListener("keydown", (evento) => {
+            if (evento.key === "Enter") {
+              evento.preventDefault();
+              entrada.blur();
+            }
+          });
+
+          if (modoEspecial) {
+            botonMostrarSolucion = document.createElement("button");
+            botonMostrarSolucion.type = "button";
+            botonMostrarSolucion.className = "boton-solucion";
+            botonMostrarSolucion.textContent = "Mostrar solución";
+            botonMostrarSolucion.addEventListener("click", () => {
+              if (solucionMostrada) {
+                ocultarResultado();
+              } else {
+                comprobarRespuesta();
+                solucionMostrada = true;
+                botonMostrarSolucion.textContent = "Ocultar solución";
+              }
+            });
+          }
+
+          const solucion = document.createElement("span");
+          solucion.className = "solucion";
+          solucion.textContent = ejercicio.respuesta;
+          solucion.hidden = !mostrarSoluciones;
+          solucion.setAttribute("aria-label", `respuesta del ejercicio ${numero}`);
+
+          const hijos = [enunciado, entrada];
+          if (botonMostrarSolucion) hijos.push(botonMostrarSolucion);
+          hijos.push(resultado, solucion);
+          elemento.append(...hijos);
+          lista.append(elemento);
+          if (modoEspecial) actualizarContadorGrupo();
+          else comprobarRespuesta();
+          numero++;
+        });
+
+        seccion.append(lista);
+        listaEjercicios.append(seccion);
+      }
+
+      const nombreNivel = dificultad.options[dificultad.selectedIndex].text.toLowerCase();
+      resumen.textContent = `50 ejercicios · Nivel ${nombreNivel}`;
+      botonSoluciones.textContent = mostrarSoluciones ? "🙈 Ocultar soluciones" : "🔒 Mostrar soluciones";
+    }
+
+    function crearOtrosEjercicios() {
+      ejerciciosActuales = crearEjercicios(dificultad.value);
+      respuestasGuardadas = {};
+      accesoDocente = false;
+      guardarProgreso();
+      pintarEjercicios();
+    }
+
+    dificultad.addEventListener("change", crearOtrosEjercicios);
+    document.querySelector("#nuevos").addEventListener("click", crearOtrosEjercicios);
+
+    botonContinuar.addEventListener("click", () => {
+      const progreso = recuperarProgreso();
+      if (progreso) {
+        dificultad.value = progreso.nivel || dificultad.value;
+        ejerciciosActuales = progreso.ejercicios;
+        respuestasGuardadas = progreso.respuestas;
+      } else {
+        ejerciciosActuales = crearEjercicios(dificultad.value);
+        respuestasGuardadas = {};
+        guardarProgreso();
+      }
+      accesoDocente = false;
+      mostrarSoluciones = false;
+      pintarEjercicios();
+      listaEjercicios.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+
+    function obtenerSesion() {
+      try {
+        return JSON.parse(localStorage.getItem("edu-sesion"));
+      } catch {
+        return null;
+      }
+    }
+
+    botonSoluciones.addEventListener("click", () => {
+      if (!accesoDocente) {
+        if (obtenerSesion()) {
+          accesoDocente = true;
+          mostrarSoluciones = true;
+          pintarEjercicios();
+          return;
+        }
+        errorClave.textContent = "";
+        campoClave.value = "";
+        pistaClave.hidden = true;
+        dialogoClave.showModal();
+        campoClave.focus();
+        return;
+      }
+
+      mostrarSoluciones = !mostrarSoluciones;
+      document.querySelectorAll(".solucion").forEach((solucion) => {
+        solucion.hidden = !mostrarSoluciones;
+      });
+      botonSoluciones.textContent = mostrarSoluciones ? "🙈 Ocultar soluciones" : "🔒 Mostrar soluciones";
+      if (!mostrarSoluciones) accesoDocente = false;
+    });
+
+    formularioClave.addEventListener("submit", (evento) => {
+      evento.preventDefault();
+      if (campoClave.value === CLAVE_DOCENTE) {
+        accesoDocente = true;
+        mostrarSoluciones = true;
+        dialogoClave.close();
+        pintarEjercicios();
+      } else {
+        errorClave.textContent = "Contraseña incorrecta. Prueba otra vez.";
+        campoClave.select();
+      }
+    });
+
+    document.querySelector("#cancelar-clave").addEventListener("click", () => dialogoClave.close());
+
+    botonOlvideClave.addEventListener("click", () => {
+      pistaClave.hidden = !pistaClave.hidden;
+    });
+
+    const progresoInicial = recuperarProgreso();
+    if (progresoInicial) {
+      dificultad.value = progresoInicial.nivel || dificultad.value;
+      ejerciciosActuales = progresoInicial.ejercicios;
+      respuestasGuardadas = progresoInicial.respuestas;
+    }
+    pintarEjercicios();
+
+    const botonVersionEspecial = document.querySelector("#boton-version-especial");
+    if (botonVersionEspecial) {
+      botonVersionEspecial.textContent = modoEspecial
+        ? "🌟 Salir de la versión especial"
+        : "🌟 Acceder a la versión especial";
+      botonVersionEspecial.addEventListener("click", () => {
+        const config = leerConfigCompartida();
+        config.correccion = modoEspecial ? "auto" : "especial";
+        guardarConfigCompartida(config);
+        location.reload();
+      });
+    }
+  </script>
+  <script src="config.js"></script>
+</body>
+</html>
